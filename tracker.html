@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>GATE 30-Day Tracker (45–50 Marks)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #0f172a;
+      --bg-soft: #111827;
+      --card: #1f2937;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56,189,248,0.2);
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --danger: #f97373;
+      --success: #4ade80;
+      --border: #374151;
+      --radius: 10px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        Roboto, sans-serif;
+      background: radial-gradient(circle at top, #1f2937 0, #020617 55%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(15,23,42,0.97);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+    }
+
+    .nav {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .nav-title {
+      font-weight: 700;
+      font-size: 18px;
+      letter-spacing: .03em;
+      color: var(--accent);
+    }
+
+    .nav-sub {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      font-size: 12px;
+      color: var(--muted);
+      background: rgba(15,23,42,0.8);
+    }
+
+    .pill strong { color: var(--accent); }
+
+    .btn {
+      border-radius: 999px;
+      border: 1px solid var(--accent);
+      padding: 6px 14px;
+      font-size: 13px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background: rgba(56,189,248,0.35);
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 16px auto 40px;
+      padding: 0 16px 32px;
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1.3fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 840px) {
+      main {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .card {
+      background: linear-gradient(145deg, #020617, #020617 40%, #020617);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 16px 16px 14px;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+    }
+
+    .card h2 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card h3 {
+      margin: 14px 0 6px;
+      font-size: 15px;
+      color: var(--accent);
+    }
+
+    .tag {
+      font-size: 11px;
+      border-radius: 999px;
+      padding: 2px 8px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .tag-good { border-color: var(--success); color: var(--success); }
+
+    .progress-wrap {
+      margin: 10px 0 4px;
+    }
+
+    .progress-bar {
+      position: relative;
+      width: 100%;
+      height: 9px;
+      border-radius: 999px;
+      background: #020617;
+      overflow: hidden;
+      border: 1px solid #1e293b;
+    }
+
+    .progress-inner {
+      position: absolute;
+      inset: 0;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(to right, #22c55e, #4ade80, #22c55e);
+      transition: width .25s ease-out;
+    }
+
+    .progress-label {
+      font-size: 12px;
+      margin-top: 4px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .days-grid {
+      display: grid;
+      grid-template-columns: repeat(10, minmax(0, 1fr));
+      gap: 4px;
+      margin-top: 8px;
+    }
+
+    .day {
+      position: relative;
+      height: 26px;
+      border-radius: 6px;
+      border: 1px solid #1f2937;
+      background: radial-gradient(circle at top, #020617 0, #020617 55%);
+      color: var(--muted);
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+      transition: all .15s ease-out;
+    }
+
+    .day span {
+      position: relative;
+      z-index: 2;
+    }
+
+    .day::before {
+      content: "";
+      position: absolute;
+      inset: 1px;
+      border-radius: inherit;
+      background: radial-gradient(circle at top, rgba(56,189,248,0.20), transparent 55%);
+      opacity: 0;
+      transition: opacity .15s ease-out;
+    }
+
+    .day:hover::before { opacity: 1; }
+
+    .day.done {
+      border-color: rgba(34,197,94,0.85);
+      background: radial-gradient(circle at top, rgba(34,197,94,0.35), #022c22 60%);
+      color: #bbf7d0;
+      font-weight: 600;
+    }
+
+    .day.done::before {
+      opacity: 1;
+      background: radial-gradient(circle at top, rgba(34,197,94,0.55), transparent 65%);
+    }
+
+    .day-today {
+      box-shadow: 0 0 0 1px rgba(56,189,248,0.8);
+    }
+
+    .small {
+      font-size: 12px;
+      color: var(--muted);
+      margin: 4px 0 0;
+    }
+
+    .subject-list {
+      margin-top: 6px;
+    }
+
+    .subject {
+      border-radius: 8px;
+      border: 1px solid #111827;
+      padding: 8px 10px;
+      margin-top: 6px;
+      background: radial-gradient(circle at top left, rgba(56,189,248,0.16), #020617 60%);
+    }
+
+    .subject-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .subject-header span.label {
+      font-weight: 600;
+    }
+
+    .subject-header span.weight {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .chip {
+      font-size: 11px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.7);
+      padding: 2px 7px;
+      color: var(--muted);
+    }
+
+    .chip-core {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .chip-easy {
+      border-color: var(--success);
+      color: var(--success);
+    }
+
+    .topics {
+      margin-top: 4px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .topics b {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .flex-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      margin-top: 4px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .pill-soft {
+      border-radius: 999px;
+      padding: 2px 8px;
+      background: rgba(15,23,42,0.9);
+      border: 1px solid #1f2937;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .checklist {
+      margin-top: 6px;
+      display: grid;
+      gap: 4px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .check-item input {
+      accent-color: var(--accent);
+    }
+
+    .badge-danger {
+      color: var(--danger);
+      font-size: 11px;
+    }
+
+    .badge-ok {
+      color: var(--success);
+      font-size: 11px;
+    }
+
+    .section-title {
+      margin: 0 0 6px;
+      font-size: 15px;
+      color: var(--accent);
+    }
+
+    .quick {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    @media (max-width: 600px) {
+      .two-col { grid-template-columns: minmax(0, 1fr); }
+    }
+
+    .small-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+      margin-top: 4px;
+      color: var(--muted);
+    }
+
+    .small-table th,
+    .small-table td {
+      border: 1px solid #1f2937;
+      padding: 4px 6px;
+      text-align: left;
+    }
+
+    .small-table th {
+      background: #020617;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    footer {
+      max-width: 1100px;
+      margin: 0 auto 24px;
+      padding: 0 16px;
+      font-size: 11px;
+      color: var(--muted);
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav">
+      <div>
+        <div class="nav-title">GATE 30-Day Tracker</div>
+        <div class="nav-sub">Target: 45–50 marks · CSE Plan</div>
+      </div>
+      <div class="nav-right">
+        <div class="pill">
+          Goal: <strong>45–50 / 100</strong>
+        </div>
+        <button class="btn" id="resetProgressBtn">Reset Progress</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- LEFT COLUMN: Calendar + Subjects -->
+    <section class="card">
+      <h2>
+        30-Day Progress
+        <span class="tag tag-good" id="dayCountLabel">0 / 30 days</span>
+      </h2>
+      <div class="progress-wrap">
+        <div class="progress-bar">
+          <div class="progress-inner" id="progressInner"></div>
+        </div>
+        <div class="progress-label">
+          <span id="progressText">0% complete</span>
+          <span>Consistency &gt; Intensity</span>
+        </div>
+      </div>
+      <p class="small">
+        Click on a day box after you complete that day's study (2 hrs Apti/Maths + 3–4 hrs Tech).
+      </p>
+
+      <div class="days-grid" id="daysGrid"></div>
+
+      <p class="small" id="todayHint"></p>
+
+      <hr style="border-color:#1f2937;margin:10px 0 8px;" />
+
+      <h3>Subject Plan (High Yield Only)</h3>
+      <div class="subject-list">
+
+        <div class="subject">
+          <div class="subject-header">
+            <span class="label">General Aptitude</span>
+            <span class="weight">≈ 10–12 marks · Daily</span>
+          </div>
+          <div class="chip-row">
+            <span class="chip chip-easy">Very Easy</span>
+            <span class="chip">Quant + Verbal</span>
+            <span class="chip">Daily 1 hr</span>
+          </div>
+          <div class="topics">
+            <b>Quant:</b> Percentage, Ratio, Time & Work, Speed–Distance, Averages, simple P&amp;C.  
+            <b>Verbal:</b> Synonyms/Antonyms, sentence correction, fill in the blanks, 1 short RC daily.
+          </div>
+        </div>
+
+        <div class="subject">
+          <div class="subject-header">
+            <span class="label">Engineering Mathematics</span>
+            <span class="weight">≈ 7–8 marks · Daily</span>
+          </div>
+          <div class="chip-row">
+            <span class="chip chip-core">Core</span>
+            <span class="chip">Linear Algebra</span>
+            <span class="chip">Probability</span>
+          </div>
+          <div class="topics">
+            Focus on matrices, rank, determinant, eigenvalues (2×2), system of equations, probability, conditional probability, Bayes, mean and variance, basic calculus.
+          </div>
+        </div>
+
+        <div class="subject">
+          <div class="subject-header">
+            <span class="label">Digital Logic</span>
+            <span class="weight">≈ 5–6 marks · Days 1–3</span>
+          </div>
+          <div class="chip-row">
+            <span class="chip chip-easy">Easiest Tech</span>
+            <span class="chip">K-maps</span>
+            <span class="chip">Combinational</span>
+          </div>
+          <div class="topics">
+            Gates, Boolean algebra, truth tables, K-map (2/3/4 variable), adders, multiplexers, decoders. Aim to finish and then only revise and solve PYQs.
+          </div>
+        </div>
+
+        <div class="subject">
+          <div class="subject-header">
+            <span class="label">DBMS</span>
+            <span class="weight">≈ 5–6 marks · Days 4–7</span>
+          </div>
+          <div class="chip-row">
+            <span class="chip chip-core">High Yield</span>
+            <span class="chip">SQL</span>
+            <span class="chip">Normalization</span>
+            <span class="chip">Transactions</span>
+          </div>
+          <div class="topics">
+            Keys, FDs, 1NF→BCNF, SQL (SELECT, JOIN, GROUP BY, HAVING, aggregates), ACID, conflict serializability. Target: 25+ SQL questions and 10+ normalization problems.
+          </div>
+        </div>
+
+        <div class="subject">
+          <div class="subject-header">
+            <span class="label">Theory of Computation</span>
+            <span class="weight">≈ 5–6 marks · Days 8–11</span>
+          </div>
+          <div class="chip-row">
+            <span class="chip chip-core">Core</span>
+            <span class="chip">FA / RE</span>
+            <span class="chip">CFG</span>
+          </div>
+          <div class="topics">
+            DFA, NFA, regex→FA, DFA minimization, CFG derivations, ambiguity, parse trees. Skip Turing machine and undecidability in this 30‑day plan.
+          </div>
+        </div>
+
+        <div class="subject">
+          <div class="subject-header">
+            <span class="label">Compiler Design</span>
+            <span class="weight">≈ 4–5 marks · Days 12–14</span>
+          </div>
+          <div class="chip-row">
+            <span class="chip chip-core">Formula Based</span>
+            <span class="chip">First/Follow</span>
+            <span class="chip">Parsing</span>
+          </div>
+          <div class="topics">
+            Lexical analysis basics, tokens, First &amp; Follow sets, LL(1) idea, LR basics. Focus mostly on First/Follow and simple parsing questions.
+          </div>
+        </div>
+
+        <div class="subject">
+          <div class="subject-header">
+            <span class="label">Operating Systems</span>
+            <span class="weight">≈ 4–5 marks · Days 15–17</span>
+          </div>
+          <div class="chip-row">
+            <span class="chip chip-core">Core</span>
+            <span class="chip">Scheduling</span>
+            <span class="chip">Deadlock</span>
+            <span class="chip">Paging</span>
+          </div>
+          <div class="topics">
+            FCFS, SJF, RR, priority scheduling (waiting/turnaround time), deadlock conditions, Banker's algorithm, paging vs segmentation, FIFO/LRU page replacement.
+          </div>
+        </div>
+
+        <div class="subject">
+          <div class="subject-header">
+            <span class="label">Computer Networks</span>
+            <span class="weight">≈ 3–4 marks · Days 18–20</span>
+          </div>
+          <div class="chip-row">
+            <span class="chip chip-easy">Conceptual</span>
+            <span class="chip">OSI vs TCP/IP</span>
+            <span class="chip">Subnetting</span>
+          </div>
+          <div class="topics">
+            OSI vs TCP/IP, TCP vs UDP, IP addressing &amp; subnetting, CRC basics, Hamming code, a bit of DNS/DHCP. Focus on 15+ subnetting and 10+ error detection problems.
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- RIGHT COLUMN: Checklist, Week Plan, Exam Strategy -->
+    <aside class="card">
+      <h2>Daily Routine & Checklist</h2>
+      <p class="quick">
+        Default day: <strong>2 hrs Apti/Maths</strong> + <strong>3–4 hrs Tech</strong>. Mark your habits below.
+      </p>
+
+      <div class="checklist" id="habitChecklist">
+        <div class="check-item">
+          <input type="checkbox" id="habitAptiMaths">
+          <label for="habitAptiMaths">Did 2 hrs Aptitude + Maths today</label>
+        </div>
+        <div class="check-item">
+          <input type="checkbox" id="habitPYQ">
+          <label for="habitPYQ">Solved at least 10 PYQs today</label>
+        </div>
+        <div class="check-item">
+          <input type="checkbox" id="habitNotes">
+          <label for="habitNotes">Updated notes / formula sheet</label>
+        </div>
+        <div class="check-item">
+          <input type="checkbox" id="habitMock">
+          <label for="habitMock">Mock test or timed practice (if planned)</label>
+        </div>
+      </div>
+      <p class="small" id="habitStatus"></p>
+
+      <hr style="border-color:#1f2937;margin:10px 0 8px;" />
+
+      <h3 class="section-title">Week‑wise Focus</h3>
+      <div class="two-col">
+        <div>
+          <div class="pill-soft"><b>Week 1</b>: DL + DBMS</div>
+          <div class="small">
+            Days 1–3: Digital Logic  
+            Days 4–7: DBMS  
+            Apti/Maths daily.
+          </div>
+        </div>
+        <div>
+          <div class="pill-soft"><b>Week 2</b>: TOC + CD</div>
+          <div class="small">
+            Days 8–11: TOC  
+            Days 12–14: Compiler Design.
+          </div>
+        </div>
+        <div>
+          <div class="pill-soft"><b>Week 3</b>: OS + CN</div>
+          <div class="small">
+            Days 15–17: OS  
+            Days 18–20: CN  
+            Day 21: PYQ marathon.
+          </div>
+        </div>
+        <div>
+          <div class="pill-soft"><b>Week 4</b>: Mocks + Revision</div>
+          <div class="small">
+            Days 22–26: Full mocks + analysis  
+            Days 27–28: Revision  
+            Days 29–30: Light review + rest.
+          </div>
+        </div>
+      </div>
+
+      <h3 class="section-title" style="margin-top:10px;">Score Target Table</h3>
+      <table class="small-table">
+        <thead>
+          <tr>
+            <th>Area</th>
+            <th>Target Marks</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>General Aptitude</td><td>10–12</td></tr>
+          <tr><td>Engg. Mathematics</td><td>7–8</td></tr>
+          <tr><td>Digital Logic</td><td>5–6</td></tr>
+          <tr><td>DBMS</td><td>5–6</td></tr>
+          <tr><td>TOC</td><td>5–6</td></tr>
+          <tr><td>Compiler Design</td><td>4–5</td></tr>
+          <tr><td>Operating Systems</td><td>4–5</td></tr>
+          <tr><td>Computer Networks</td><td>3–4</td></tr>
+          <tr><td><strong>Total</strong></td><td><strong>≈ 43–52</strong></td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="section-title" style="margin-top:10px;">Exam Strategy</h3>
+      <p class="quick">
+        Attempt ~45–50 questions with high accuracy instead of chasing all 65.
+      </p>
+      <ul style="margin:0 0 4px 16px;font-size:12px;color:var(--muted);padding-left:14px;">
+        <li>Start with Aptitude → Maths → your strongest tech subjects.</li>
+        <li>Skip obviously tough or lengthy questions quickly.</li>
+        <li>Use virtual calculator in practice so there is no surprise in exam.</li>
+      </ul>
+      <p class="small">
+        After Day 21: no new topics. Only strengthen what you have already studied.
+      </p>
+
+      <h3 class="section-title" style="margin-top:10px;">Skip List (For This 30 Days)</h3>
+      <p class="small">
+        COA, advanced Algorithms/DS, full Discrete Maths, Software Eng, Web Tech.  
+        These are low priority for a 45–50 mark target in short time.
+      </p>
+
+      <p class="small" style="margin-top:10px;">
+        <span class="badge-ok">Tip:</span> Keep this page open every day, tick your habits, and click the day box once done.
+      </p>
+    </aside>
+  </main>
+
+  <footer>
+    GATE 30-Day Plan · Local progress is stored in your browser.
+  </footer>
+
+  <script>
+    // --- Simple localStorage helpers ---
+    const STORAGE_KEY_DAYS = "gate30_days_done_v1";
+    const STORAGE_KEY_HABITS = "gate30_habits_v1";
+
+    const loadJSON = (key, fallback) => {
+      try {
+        const raw = localStorage.getItem(key);
+        if (!raw) return fallback;
+        return JSON.parse(raw);
+      } catch {
+        return fallback;
+      }
+    };
+
+    const saveJSON = (key, value) => {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+      } catch (e) {
+        console.warn("LocalStorage error", e);
+      }
+    };
+
+    // --- Day grid & progress ---
+    const daysGrid = document.getElementById("daysGrid");
+    const progressInner = document.getElementById("progressInner");
+    const progressText = document.getElementById("progressText");
+    const dayCountLabel = document.getElementById("dayCountLabel");
+    const todayHint = document.getElementById("todayHint");
+    const resetBtn = document.getElementById("resetProgressBtn");
+
+    const initDays = () => {
+      const saved = loadJSON(STORAGE_KEY_DAYS, {});
+      daysGrid.innerHTML = "";
+      let doneCount = 0;
+
+      const today = new Date();
+      const todayIndex = today.getDate() >= 1 && today.getDate() <= 30
+        ? today.getDate()
+        : null;
+
+      for (let i = 1; i <= 30; i++) {
+        const dayEl = document.createElement("div");
+        dayEl.className = "day";
+        if (saved[i]) {
+          dayEl.classList.add("done");
+          doneCount++;
+        }
+        if (i === todayIndex) {
+          dayEl.classList.add("day-today");
+        }
+        const label = document.createElement("span");
+        label.textContent = i;
+        dayEl.appendChild(label);
+
+        dayEl.addEventListener("click", () => {
+          const isDone = dayEl.classList.toggle("done");
+          saved[i] = isDone;
+          if (!isDone) delete saved[i];
+          saveJSON(STORAGE_KEY_DAYS, saved);
+          updateProgress();
+        });
+
+        daysGrid.appendChild(dayEl);
+      }
+
+      updateProgress();
+      if (todayIndex) {
+        todayHint.textContent =
+          "Tip: If you follow date = day mapping, today is Day " +
+          todayIndex +
+          ". Otherwise, ignore and just use as 30 slots.";
+      } else {
+        todayHint.textContent =
+          "Use any mapping you like: Day 1 = when you start. Just mark completed days.";
+      }
+    };
+
+    const updateProgress = () => {
+      const saved = loadJSON(STORAGE_KEY_DAYS, {});
+      const doneCount = Object.keys(saved).length;
+      const pct = Math.round((doneCount / 30) * 100);
+      progressInner.style.width = pct + "%";
+      progressText.textContent = pct + "% complete";
+      dayCountLabel.textContent = doneCount + " / 30 days";
+    };
+
+    resetBtn.addEventListener("click", () => {
+      if (!confirm("Reset all day progress and habit ticks?")) return;
+      localStorage.removeItem(STORAGE_KEY_DAYS);
+      localStorage.removeItem(STORAGE_KEY_HABITS);
+      initDays();
+      initHabits();
+    });
+
+    // --- Habits checklist ---
+    const habitCheckboxes = {
+      habitAptiMaths: document.getElementById("habitAptiMaths"),
+      habitPYQ: document.getElementById("habitPYQ"),
+      habitNotes: document.getElementById("habitNotes"),
+      habitMock: document.getElementById("habitMock")
+    };
+    const habitStatus = document.getElementById("habitStatus");
+
+    const initHabits = () => {
+      const saved = loadJSON(STORAGE_KEY_HABITS, {});
+      Object.entries(habitCheckboxes).forEach(([key, el]) => {
+        el.checked = !!saved[key];
+        el.addEventListener("change", () => {
+          const current = loadJSON(STORAGE_KEY_HABITS, {});
+          current[key] = el.checked;
+          saveJSON(STORAGE_KEY_HABITS, current);
+          updateHabitStatus();
+        });
+      });
+      updateHabitStatus();
+    };
+
+    const updateHabitStatus = () => {
+      const total = Object.keys(habitCheckboxes).length;
+      const done = Object.values(habitCheckboxes).filter(c => c.checked).length;
+      if (done === 0) {
+        habitStatus.innerHTML =
+          "<span class='badge-danger'>Status:</span> No habits ticked yet for today.";
+      } else if (done < total) {
+        habitStatus.innerHTML =
+          "<span class='badge-ok'>Status:</span> " +
+          done +
+          "/" +
+          total +
+          " habits done. Finish the rest.";
+      } else {
+        habitStatus.innerHTML =
+          "<span class='badge-ok'>Status:</span> All daily habits completed. Good job.";
+      }
+    };
+
+    // --- Init ---
+    initDays();
+    initHabits();
+  </script>
+</body>
+</html>
